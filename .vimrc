@@ -46,6 +46,7 @@ let g:bufExplorerDisableDefaultKeyMapping=0
 "                 <leader>c$ 从当前光标开始到行尾注释，cc是全行注释.
 "                 <leader>cu 取消注释.
 "                 <C-c>      插入模式下立刻插入注释并且开始编辑。
+"                 <leader>ca 注释符号切换,比如从/* */切换成//
 "--------------------------------------------------
 Plugin 'scrooloose/nerdcommenter'
 let g:NERDSpaceDelims=1
@@ -120,6 +121,10 @@ let g:airline_theme="badwolf"
 "-------------------------------------------------
 Plugin 'altercation/vim-colors-solarized.git' 
 
+"-------------------------------------------------
+"                 C语言自动补全YouCompleteMe
+"-------------------------------------------------
+Plugin 'Valloric/YouCompleteMe'
 "-------------------------------------------------
 "                 java自动补全VJDE
 "-------------------------------------------------
@@ -310,8 +315,8 @@ imap <m-l> <right>
 imap <C-a> <C-o>^
 imap <C-l> <C-o>$
 "使用F2键来开关搜索/替换的高亮显示。<C-O>用于在插入模式时临时执行一个普通模式的命令.
-nmap <silent> <F12> :nohlsearch<CR>
-imap <silent> <F12> <c-o>:nohlsearch<CR>
+nmap <silent> <F2> :nohlsearch<CR>
+imap <silent> <F2> <c-o>:nohlsearch<CR>
 "引号自动匹配.由插件取代。
 " :inoremap ( ()<ESC>i
 " :inoremap { {}<ESC>i
@@ -323,12 +328,13 @@ imap <silent> <F12> <c-o>:nohlsearch<CR>
 "设置Leader为','
 let mapleader = ','
 "把<ESC>键映射成"jj",在编辑是很方便，不用去远程操作ESC键了。
-:map! jj <ESC> 
+map! jj <ESC>
 nnoremap <leader>b :CtrlPBuffer<CR>
 nnoremap <leader>t :CtrlP<CR>
 nnoremap <leader>d :NERDTreeToggle<CR>
 " noremap <leader>f :NERDTreeFind<CR>
-nnoremap <F11> :TagbarToggle<CR>
+" F11的映射在终端已经把F11作为内部快捷键时失效.所以改为F3
+nnoremap <F3> :TagbarToggle<CR>
 
 "--------------------------------------------------------------
 "                      easymotion config
