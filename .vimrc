@@ -2,6 +2,8 @@
 "插件自动管理部分 Vundle
 set nocompatible              " be iMproved, required
 filetype off                  " required
+"设置Leader为','
+let mapleader = ','
 
 "set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle/
@@ -125,6 +127,10 @@ Plugin 'altercation/vim-colors-solarized.git'
 "                 C语言自动补全YouCompleteMe
 "-------------------------------------------------
 Plugin 'Valloric/YouCompleteMe'
+"设置ycm默认的配置文件
+let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
+nnoremap <leader>jd :YcmCompleter GoTo<CR>
+let g:ycm_confirm_extra_conf = 0
 "-------------------------------------------------
 "                 java自动补全VJDE
 "-------------------------------------------------
@@ -325,8 +331,6 @@ imap <silent> <F2> <c-o>:nohlsearch<CR>
 " :inoremap ' ''<ESC>i
 " :inoremap < <><ESC>i
 
-"设置Leader为','
-let mapleader = ','
 "把<ESC>键映射成"jj",在编辑是很方便，不用去远程操作ESC键了。
 map! jj <ESC>
 nnoremap <leader>b :CtrlPBuffer<CR>
@@ -348,7 +352,7 @@ map <Leader> <Plug>(easymotion-prefix)
 "2字符跳转
 nmap <Leader><Space> <Plug>(easymotion-s2)
 "行间跳转
-map <Leader>j <Plug>(easymotion-j)
+map  <Leader>j <Plug>(easymotion-j)
 map <Leader>k <Plug>(easymotion-k)
 "行内跳转
 map <Leader>l <Plug>(easymotion-lineforward)
