@@ -61,6 +61,7 @@ imap <C-c> <plug>NERDCommenterInsert
 "				 ysw(	从当前光标开始的一个单词添加()
 "				 ysaw(	在一个单词中任意位置把当前单词用()环绕.
 "				 yssB	在当前行或当前v块添加{}环绕。
+"				 v块然后S' 　在选中的v块添加'＇环绕．
 "                ds"	在一个环绕中任何位置删除""
 "				 cs])	在一个环绕中任何位置把当前环绕符[]替换成().
 "--------------------------------------------------
@@ -129,8 +130,17 @@ Plugin 'altercation/vim-colors-solarized.git'
 Plugin 'Valloric/YouCompleteMe'
 "设置ycm默认的配置文件
 let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
-nnoremap <leader>jd :YcmCompleter GoTo<CR>
+"因为<leader>jd和easymotion的<leader>j有用法的冲突，会导致easymotion使用"<leader>j时较慢，所以改为<leader>yd．
+"使用了YCM的GoTo后ctags都可以不用了.
+nnoremap <leader>yd :YcmCompleter GoTo<CR>
 let g:ycm_confirm_extra_conf = 0
+let g:ycm_error_symbol = '>>'
+let g:ycm_warning_symbol = '>*'
+
+"-------------------------------------------------
+"                 语法检查syntastic
+"-------------------------------------------------
+" Plugin 'scrooloose/syntastic'
 "-------------------------------------------------
 "                 java自动补全VJDE
 "-------------------------------------------------
@@ -247,9 +257,16 @@ endif
 set cursorline
 
 "设置状态栏显示内容,在gui下该设置被vim-airline插件取代。
- if !has('gui_running')
+ " if !has('gui_running')
 	 set statusline=%F%m%r%h%w\[FORMAT=%{&ff}]\ [TYPE=%Y]\ [POS=%l,%v][%p%%]\ %{strftime(\"%d/%m/%y\ -\ %H:%M\")} 
- endif
+	 set statusline+=%#warningmsg#
+	 set statusline+=%{SyntasticStatuslineFlag()}
+	 set statusline+=%*
+ " endif
+ let g:syntastic_always_populate_loc_list = 1
+ let g:syntastic_auto_loc_list = 1
+ let g:syntastic_check_on_open = 1
+ let g:syntastic_check_on_wq = 0
 
 "状态行显示开关：1启动显示；2总是显示
 set laststatus=2
