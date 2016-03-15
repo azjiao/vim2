@@ -1,0 +1,3 @@
+.vimrc是之前我的配置文件
+spf13来自于spf13/spf13的配置文件,这是组织很好的配置,用来学习.
+配合spf13使用的文件有多个,在此我只用到.vimrc.before .vimrc.before.local 和.vimrc.bundle三个文件,其他文件需要再增加.
