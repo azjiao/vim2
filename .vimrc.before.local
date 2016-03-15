@@ -1,0 +1,15 @@
+"插件bundles设置
+let g:spf13_bundle_groups=['general', 'youcompleteme','programming']
+
+let g:spf13_clear_search_highlight = 1
+
+"修改映射的快速映射：
+let g:spf13_edit_config_mapping='<leader>em'
+"修改配置后立即生效：
+let g:spf13_apply_config_mapping='<leader>vv'
+
+"禁用<S-H>和<S-L>作为gt的映射(用于在tab间快速切换)
+let g:spf13_no_fastTabs = 1
+
+"禁用omni complete作为自动补全插件
+let g:spf13_no_omni_complete = 1
