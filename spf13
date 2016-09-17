@@ -50,13 +50,29 @@
         endif
     " "}}}
 
-    " Windows Compatible"{{{
+    " Windows Compatible {{{
         " On Windows, also use '.vim' instead of 'vimfiles'; this makes synchronization
         " across (heterogeneous) systems easier.
-        if WINDOWS()
+        if has('win32') || has('win64')
           set runtimepath=$HOME/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,$HOME/.vim/after
+
+          " Be nice and check for multi_byte even if the config requires
+          " multi_byte support most of the time
+          if has("multi_byte")
+            " Windows cmd.exe still uses cp850. If Windows ever moved to
+            " Powershell as the primary terminal, this would be utf-8
+            set termencoding=cp850
+            " Let Vim use utf-8 internally, because many scripts require this
+            set encoding=utf-8
+            setglobal fileencoding=utf-8
+            " Windows has traditionally used cp1252, so it's probably wise to
+            " fallback into cp1252 instead of eg. iso-8859-15.
+            " Newer Windows files might contain utf-8 or utf-16 LE so we might
+            " want to try them first.
+            set fileencodings=ucs-bom,utf-8,utf-16le,cp1252,iso-8859-15
+          endif
         endif
-    ""}}}
+    " }}}
 
     " Arrow Key Fix "{{{
         " https://github.com/spf13/spf13-vim/issues/780
@@ -68,10 +84,11 @@
 "}}}
 
 " Use before config if available 使用之前的配置.vimrc.before生效 "{{{
+".vimrc.before又source了.vimrc.before.local文件
     if filereadable(expand("~/.vimrc.before"))
         source ~/.vimrc.before
     endif
-" "}}}
+"}}}
 
 " Use bundles config 使由bundles管理的插件生效 "{{{
     if filereadable(expand("~/.vimrc.bundles"))
@@ -161,9 +178,9 @@
     set history=1000                    " Store a ton of history (default is 20)
     set spell                           " Spell checking on
     set hidden                          " Allow buffer switching without saving
-    set iskeyword-=.                    " '.' is an end of word designator
-    set iskeyword-=#                    " '#' is an end of word designator
-    set iskeyword-=-                    " '-' is an end of word designator
+    "set iskeyword-=.                    " '.' is an end of word designator
+    "set iskeyword-=#                    " '#' is an end of word designator
+    "set iskeyword-=-                    " '-' is an end of word designator
 
     " Instead of reverting the cursor to the last position in the buffer, we
     " set it to the first line when editing a git commit message
@@ -189,7 +206,7 @@
 
     " Setting up the directories
         set backup                  " Backups are nice ...
-       if has('persistent_undo')
+        if has('persistent_undo')
             set undofile                " So is persistent undo ...
             set undolevels=1000         " Maximum number of changes that can be undone
             set undoreload=10000        " Maximum number lines to save for undo on a buffer reload
@@ -220,7 +237,7 @@
 "}}}
 
     set tabpagemax=15               " Only show 15 tabs
-    set showmode                    " Display the current mode
+    set showmode                    " Display the current mode,vi缺省关闭,但vim缺省打开.
 
     set cursorline                  " Highlight current line
 
@@ -291,18 +308,6 @@
     " .vimrc.before.local file:
     "   let g:spf13_keep_trailing_whitespace = 1
     autocmd FileType c,cpp,java,go,php,javascript,puppet,python,rust,twig,xml,yml,perl,sql autocmd BufWritePre <buffer> if !exists('g:spf13_keep_trailing_whitespace') | call StripTrailingWhitespace() | endif
-    "autocmd FileType go autocmd BufWritePre <buffer> Fmt
-    autocmd BufNewFile,BufRead *.html.twig set filetype=html.twig
-    autocmd FileType haskell,puppet,ruby,yml setlocal expandtab shiftwidth=2 softtabstop=2
-    " preceding line best in a plugin but here for now.
-
-    autocmd BufNewFile,BufRead *.coffee set filetype=coffee
-
-    " Workaround vim-commentary for Haskell
-    autocmd FileType haskell setlocal commentstring=--\ %s
-    " Workaround broken colour highlighting in Haskell
-    autocmd FileType haskell,rust setlocal nospell
-
 " "}}}
 
 " Key (re)Mappings "{{{
@@ -350,14 +355,15 @@
     " 当使用j和k时再连续显示多行 Wrapped lines goes down/up to next row, rather than next line in file."{{{
     noremap j gj
     noremap k gk
-"}}}
 
     " End/Start of line motion keys act relative to row/wrap width in the
     " presence of `:set wrap`, and relative to line for `:set nowrap`.
     " Default vim behaviour is to act relative to text line in both cases
     " If you prefer the default behaviour, add the following to your
     " .vimrc.before.local file:
-    "   let g:spf13_no_wrapRelMotion = 1
+    "   let G:spf13_no_wrapRelMotion = 1
+    "   已经在.vimrc.before.local中设置g:spf13_no_wrapRelMotion=1,也就是采用vim缺省动作.
+
     if !exists('g:spf13_no_wrapRelMotion')
         " Same for 0, home, end, etc
         function! WrapRelativeMotion(key, ...)
@@ -390,9 +396,10 @@
         vnoremap <Home> :<C-U>call WrapRelativeMotion("0", 1)<CR>
         vnoremap ^ :<C-U>call WrapRelativeMotion("^", 1)<CR>
     endif
+"}}}
 
-    " tab间快速切换 The following two lines conflict with moving to top and"{{{
-    " gt已经够快速了,<S>在非mac电脑上也无用.所以已经禁用了
+    " tab间快速切换gt已经够快速了,<S>在非mac电脑上也无用.所以已经禁用了{{{
+    " The following two lines conflict with moving to top and"
     " bottom of the screen
     " If you prefer that functionality, add the following to your
     " .vimrc.before.local file:
@@ -403,7 +410,7 @@
     endif
 "}}}
 
-    " Stupid shift key fixes
+    " Stupid shift key fixes{{{
     if !exists('g:spf13_no_keyfixes')
         if has("user_commands")
             command! -bang -nargs=* -complete=file E e<bang> <args>
@@ -419,6 +426,7 @@
 
         cmap Tabe tabe
     endif
+    "}}}
 
     " Yank from the cursor to the end of the line, to be consistent with C and D.
     "nnoremap Y y$
@@ -436,8 +444,9 @@
     nmap <leader>f9 :set foldlevel=9<CR>
 "}}}
 
-    "搜索结果高亮显示关闭或打开的映射 Most prefer to toggle search highlighting rather than clear the current"{{{
-    "已经设置成<leader>/关闭高亮
+    "搜索结果高亮显示关闭或打开的映射,已经设置成<leader>/关闭高亮{{{
+    "Most prefer to toggle search highlighting rather than clear the current"
+    "
     " search results. To clear search highlighting rather than toggle it on
     " and off, add the following to your .vimrc.before.local file:
     "   let g:spf13_clear_search_highlight = 1
@@ -483,7 +492,7 @@
     " and ask which one to jump to
     nmap <Leader>ff [I:let nr = input("Which one: ")<Bar>exe "normal " . nr ."[\t"<CR>
 
-    " Easier horizontal scrolling"{{{
+    " 水平移动Easier horizontal scrolling"{{{
     map zl zL
     map zh zH
 "}}}
@@ -499,72 +508,12 @@
 
 " Plugins {{{
 
-    " TextObj Sentence "{{{
-        if count(g:spf13_bundle_groups, 'writing')
-            augroup textobj_sentence
-              autocmd!
-              autocmd FileType markdown call textobj#sentence#init()
-              autocmd FileType textile call textobj#sentence#init()
-              autocmd FileType text call textobj#sentence#init()
-            augroup END
-        endif
-     "}}}
-
-    " TextObj Quote "{{{
-        if count(g:spf13_bundle_groups, 'writing')
-            augroup textobj_quote
-                autocmd!
-                autocmd FileType markdown call textobj#quote#init()
-                autocmd FileType textile call textobj#quote#init()
-                autocmd FileType text call textobj#quote#init({'educate': 0})
-            augroup END
-        endif
-     "}}}
-
-    " PIV "{{{
-        if isdirectory(expand("~/.vim/bundle/PIV"))
-            let g:DisableAutoPHPFolding = 0
-            let g:PIVAutoClose = 0
-        endif
-    "}}}
-
     " Misc "{{{
         if isdirectory(expand("~/.vim/bundle/nerdtree"))
             let g:NERDShutUp=1
         endif
         if isdirectory(expand("~/.vim/bundle/matchit.zip"))
             let b:match_ignorecase = 1
-        endif
-     "}}}
-
-    " OmniComplete已经禁用 "{{{
-        " To disable omni complete, add the following to your .vimrc.before.local file:
-        "   let g:spf13_no_omni_complete = 1
-        if !exists('g:spf13_no_omni_complete')
-            if has("autocmd") && exists("+omnifunc")
-                autocmd Filetype *
-                    \if &omnifunc == "" |
-                    \setlocal omnifunc=syntaxcomplete#Complete |
-                    \endif
-            endif
-
-            hi Pmenu  guifg=#000000 guibg=#F8F8F8 ctermfg=black ctermbg=Lightgray
-            hi PmenuSbar  guifg=#8A95A7 guibg=#F8F8F8 gui=NONE ctermfg=darkcyan ctermbg=lightgray cterm=NONE
-            hi PmenuThumb  guifg=#F8F8F8 guibg=#8A95A7 gui=NONE ctermfg=lightgray ctermbg=darkcyan cterm=NONE
-
-            " Some convenient mappings
-            "inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
-            if exists('g:spf13_map_cr_omni_complete')
-                inoremap <expr> <CR>     pumvisible() ? "\<C-y>" : "\<CR>"
-            endif
-            inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
-            inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
-            inoremap <expr> <C-d>      pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<C-d>"
-            inoremap <expr> <C-u>      pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<C-u>"
-
-            " Automatically open and close the popup menu / preview window
-            au CursorMovedI,InsertLeave * if pumvisible() == 0|silent! pclose|endif
-            set completeopt=menu,preview,longest
         endif
      "}}}
 
@@ -578,12 +527,6 @@
         endif
     "}}}
 
-    " AutoCloseTag "{{{
-        " Make it so AutoCloseTag works for xml and xhtml files as well
-        au FileType xhtml,xml ru ftplugin/html/autoclosetag.vim
-        nmap <Leader>ac <Plug>ToggleAutoCloseMappings
-     "}}}
-
     " SnipMate "{{{
         " Setting the author var
         " If forking, please overwrite in your .vimrc.local file
@@ -593,8 +536,8 @@
     " NerdTree "{{{
         if isdirectory(expand("~/.vim/bundle/nerdtree"))
             map <C-e> <plug>NERDTreeTabsToggle<CR>
-            map <leader>e :NERDTreeFind<CR>
-            nmap <leader>nt :NERDTreeFind<CR>
+            "map <leader>e :NERDTreeFind<CR>
+            "nmap <leader>nt :NERDTreeFind<CR>
 
             let NERDTreeShowBookmarks=1
             let NERDTreeIgnore=['\.py[cd]$', '\~$', '\.swo$', '\.swp$', '^\.git$', '^\.hg$', '^\.svn$', '\.bzr$']
@@ -627,20 +570,6 @@
             vmap <Leader>a<Bar> :Tabularize /<Bar><CR>
         endif
      "}}}
-
-    " Session List 对话管理"{{{
-        set sessionoptions=blank,buffers,curdir,folds,tabpages,winsize
-        if isdirectory(expand("~/.vim/bundle/sessionman.vim/"))
-            nmap <leader>sl :SessionList<CR>
-            nmap <leader>ss :SessionSave<CR>
-            nmap <leader>sc :SessionClose<CR>
-        endif
-     "}}}
-
-    " JSON "{{{
-        nmap <leader>jt <Esc>:%!python -m json.tool<CR><Esc>:set filetype=json<CR>
-        let g:vim_json_syntax_conceal = 0
-    "}}}
 
     " PyMode "{{{
         " Disable if python support not present
